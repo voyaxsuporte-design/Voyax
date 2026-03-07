@@ -171,8 +171,8 @@ function ZoeModificationPanel({ trip, onClose }: { trip: Trip; onClose: () => vo
                   </div>
                 )}
                 <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-xs leading-relaxed font-light ${msg.sender === 'zoe'
-                    ? 'bg-white/[0.04] border border-white/8 text-white/80 rounded-tl-sm'
-                    : 'bg-emerald-500/15 border border-emerald-500/20 text-white rounded-tr-sm'
+                  ? 'bg-white/[0.04] border border-white/8 text-white/80 rounded-tl-sm'
+                  : 'bg-emerald-500/15 border border-emerald-500/20 text-white rounded-tr-sm'
                   }`}>
                   {msg.text}
                 </div>
@@ -219,7 +219,7 @@ function ZoeModificationPanel({ trip, onClose }: { trip: Trip; onClose: () => vo
         </div>
 
         {/* Current choices sidebar */}
-        <div className="w-44 shrink-0 space-y-2 overflow-y-auto chat-scroll">
+        <div className="hidden md:block w-44 shrink-0 space-y-2 overflow-y-auto chat-scroll">
           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Seleções Atuais</p>
 
           {[
@@ -291,7 +291,7 @@ function TripDetailPanel({
       <div className="flex-1 overflow-y-auto chat-scroll space-y-4 pr-1">
 
         {/* Summary cards */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             { icon: Plane, label: 'Voo', value: trip.flight },
             { icon: Hotel, label: 'Hotel', value: trip.hotel },
@@ -407,18 +407,18 @@ export default function MinhasViagensPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="pt-24 pb-20 px-6 max-w-7xl mx-auto w-full min-h-screen"
+      className="pt-24 pb-20 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-screen"
     >
       {/* Page header */}
       <div className="mb-8">
-        <h2 className="text-4xl font-bold tracking-tight font-display text-crisp">Minhas Viagens</h2>
+        <h2 className="text-2xl md:text-4xl font-bold tracking-tight font-display text-crisp">Minhas Viagens</h2>
         <p className="text-white/50 text-sm font-light tracking-wide mt-1">Gerencie seu itinerário e reservas exclusivas</p>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 min-h-[70vh]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[70vh]">
 
         {/* ── COLUMN 1 — Trip list ── */}
-        <div className={`${panelView !== 'none' ? 'col-span-12 lg:col-span-4' : 'col-span-12 lg:col-span-8'} transition-all duration-500`}>
+        <div className={`${panelView !== 'none' ? 'lg:col-span-4' : 'lg:col-span-8'} transition-all duration-500`}>
           <div className="space-y-4">
             {MOCK_TRIPS.map((trip) => (
               <motion.div
@@ -466,8 +466,8 @@ export default function MinhasViagensPage() {
                       <button
                         onClick={e => { e.stopPropagation(); openDetail(trip); }}
                         className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${selectedTrip?.id === trip.id && panelView !== 'none'
-                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
-                            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+                          : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                           }`}
                       >
                         <LayoutList className="w-3 h-3" />
@@ -498,7 +498,7 @@ export default function MinhasViagensPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 24 }}
               transition={{ duration: 0.3 }}
-              className="col-span-12 lg:col-span-8 sticky top-24 self-start"
+              className="lg:col-span-8 sticky top-24 self-start"
             >
               <div className="glass-card rounded-3xl p-6 h-[calc(100vh-180px)] flex flex-col relative overflow-hidden">
                 <div className="high-fidelity-texture" />

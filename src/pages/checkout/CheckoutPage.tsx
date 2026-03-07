@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ShieldCheck, CreditCard, ChevronRight, ArrowLeft, Calendar, MapPin, Plane, Hotel, Star, CheckCircle2, Clock } from 'lucide-react';
+import { ShieldCheck, CreditCard, ChevronRight, ArrowLeft, Calendar, MapPin, Plane, Hotel, Star, CheckCircle2, Clock, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Flight, Hotel as HotelType, Experience } from '../../types';
 import { IMAGES } from '../../constants';
@@ -13,8 +13,22 @@ import ZoeMiniChat from '../../components/ZoeMiniChat';
  *
  *  Tela de finalização da reserva. Mostra resumo
  *  do voo, hotel e experiência selecionados.
+ *  Cada item possui um botão "Reservar" que abre
+ *  o link de afiliação (white label) em nova aba.
  * ===================================================
  */
+
+/** Opens an affiliate booking link in a new tab */
+function openBookingLink(type: 'flight' | 'hotel' | 'experience') {
+  // Placeholder affiliate URLs — replace with real white-label links
+  const urls: Record<string, string> = {
+    flight: '#',
+    hotel: '#',
+    experience: '#',
+  };
+  window.open(urls[type], '_blank', 'noopener,noreferrer');
+}
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { selectedFlight: flight, selectedHotel: hotel, selectedExperience: experience } = useAppContext();
@@ -25,14 +39,14 @@ export default function CheckoutPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="pt-32 pb-20 px-6 max-w-6xl mx-auto w-full"
+      className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-6xl mx-auto w-full"
     >
       <div className="flex items-center gap-4 mb-12">
         <button onClick={() => navigate('/experiencias')} className="p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
           <ArrowLeft className="w-5 h-5 text-white/60" />
         </button>
         <div>
-          <h2 className="text-4xl font-bold tracking-tight font-display text-crisp">Finalizar Reserva</h2>
+          <h2 className="text-2xl md:text-4xl font-bold tracking-tight font-display text-crisp">Finalizar Reserva</h2>
           <p className="text-white/50 text-sm font-light tracking-wide">Revise e acesse os links diretos para a sua jornada</p>
         </div>
       </div>
@@ -50,84 +64,132 @@ export default function CheckoutPage() {
             <div className="space-y-8">
               {/* Flight */}
               {flight && (
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 rounded-[24px] bg-white/5 border border-white/5 group hover:border-emerald-500/20 transition-all">
-                  <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                    <Plane className="w-8 h-8 text-emerald-400/50" />
+                <div className="p-6 rounded-[24px] bg-white/5 border border-white/5 group hover:border-emerald-500/20 transition-all">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                    <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                      <Plane className="w-8 h-8 text-emerald-400/50" />
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-bold text-white text-lg">{flight.airline}</h4>
+                          <p className="text-emerald-400/60 text-[10px] font-bold uppercase tracking-widest">Business Class • {flight.number}</p>
+                        </div>
+                        <span className="text-white font-bold text-lg">R$ {flight.price.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-4 mt-4">
+                        <div className="text-center">
+                          <p className="text-white font-bold text-sm">{flight.departureTime}</p>
+                          <p className="text-white/30 text-[9px] font-bold uppercase tracking-widest">GRU</p>
+                        </div>
+                        <div className="flex-grow h-[1px] bg-white/10 relative">
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500/40" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-white font-bold text-sm">{flight.arrivalTime}</p>
+                          <p className="text-white/30 text-[9px] font-bold uppercase tracking-widest">DST</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-bold text-white text-lg">{flight.airline}</h4>
-                        <p className="text-emerald-400/60 text-[10px] font-bold uppercase tracking-widest">Business Class • {flight.number}</p>
-                      </div>
-                      <span className="text-white font-bold text-lg">R$ {flight.price.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center gap-4 mt-4">
-                      <div className="text-center">
-                        <p className="text-white font-bold text-sm">{flight.departureTime}</p>
-                        <p className="text-white/30 text-[9px] font-bold uppercase tracking-widest">GRU</p>
-                      </div>
-                      <div className="flex-grow h-[1px] bg-white/10 relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500/40" />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-white font-bold text-sm">{flight.arrivalTime}</p>
-                        <p className="text-white/30 text-[9px] font-bold uppercase tracking-widest">CDG</p>
-                      </div>
-                    </div>
+                  {/* Booking button */}
+                  <div className="mt-5 pt-5 border-t border-white/5">
+                    <button
+                      onClick={() => openBookingLink('flight')}
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-500/20 hover:border-emerald-400/40 transition-all group/book"
+                    >
+                      <Plane className="w-3.5 h-3.5" />
+                      Reservar Voo
+                      <ExternalLink className="w-3 h-3 opacity-50 group-hover/book:opacity-100 transition-opacity" />
+                    </button>
+                    <p className="text-center text-white/20 text-[9px] mt-2">
+                      Você será redirecionado ao site do parceiro para concluir a reserva
+                    </p>
                   </div>
                 </div>
               )}
 
               {/* Hotel */}
               {hotel && (
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 rounded-[24px] bg-white/5 border border-white/5 group hover:border-emerald-500/20 transition-all">
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-white/10">
-                    <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-bold text-white text-lg">{hotel.name}</h4>
-                        <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold uppercase tracking-widest">
-                          <MapPin className="w-3 h-3" />
-                          {hotel.location}
+                <div className="p-6 rounded-[24px] bg-white/5 border border-white/5 group hover:border-emerald-500/20 transition-all">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-white/10">
+                      <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-bold text-white text-lg">{hotel.name}</h4>
+                          <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                            <MapPin className="w-3 h-3" />
+                            {hotel.location}
+                          </div>
                         </div>
+                        <span className="text-white font-bold text-lg">R$ {hotel.price.toLocaleString()}</span>
                       </div>
-                      <span className="text-white font-bold text-lg">R$ {hotel.price.toLocaleString()}</span>
+                      <div className="flex items-center gap-1 mt-3">
+                        {[...Array(hotel.rating)].map((_, i) => (
+                          <Star key={i} className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500" />
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 mt-3">
-                      {[...Array(hotel.rating)].map((_, i) => (
-                        <Star key={i} className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500" />
-                      ))}
-                    </div>
+                  </div>
+                  {/* Booking button */}
+                  <div className="mt-5 pt-5 border-t border-white/5">
+                    <button
+                      onClick={() => openBookingLink('hotel')}
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-500/20 hover:border-emerald-400/40 transition-all group/book"
+                    >
+                      <Hotel className="w-3.5 h-3.5" />
+                      Reservar Hotel
+                      <ExternalLink className="w-3 h-3 opacity-50 group-hover/book:opacity-100 transition-opacity" />
+                    </button>
+                    <p className="text-center text-white/20 text-[9px] mt-2">
+                      Você será redirecionado ao site do parceiro para concluir a reserva
+                    </p>
                   </div>
                 </div>
               )}
 
               {/* Experience */}
               {experience && (
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 rounded-[24px] bg-white/5 border border-white/5 group hover:border-emerald-500/20 transition-all">
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-white/10">
-                    <img src={experience.image} alt={experience.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-bold text-white text-lg">{experience.name}</h4>
-                        <div className="flex items-center gap-3 mt-1">
-                          <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold uppercase tracking-widest">
-                            <Clock className="w-3 h-3" />
-                            {experience.duration}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold uppercase tracking-widest">
-                            <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                            {experience.rating}
+                <div className="p-6 rounded-[24px] bg-white/5 border border-white/5 group hover:border-emerald-500/20 transition-all">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-white/10">
+                      <img src={experience.image} alt={experience.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-bold text-white text-lg">{experience.name}</h4>
+                          <div className="flex items-center gap-3 mt-1">
+                            <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                              <Clock className="w-3 h-3" />
+                              {experience.duration}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                              {experience.rating}
+                            </div>
                           </div>
                         </div>
+                        <span className="text-white font-bold text-lg">R$ {experience.price.toLocaleString()}</span>
                       </div>
-                      <span className="text-white font-bold text-lg">R$ {experience.price.toLocaleString()}</span>
                     </div>
+                  </div>
+                  {/* Booking button */}
+                  <div className="mt-5 pt-5 border-t border-white/5">
+                    <button
+                      onClick={() => openBookingLink('experience')}
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-500/20 hover:border-emerald-400/40 transition-all group/book"
+                    >
+                      <Star className="w-3.5 h-3.5" />
+                      Reservar Experiência
+                      <ExternalLink className="w-3 h-3 opacity-50 group-hover/book:opacity-100 transition-opacity" />
+                    </button>
+                    <p className="text-center text-white/20 text-[9px] mt-2">
+                      Você será redirecionado ao site do parceiro para concluir a reserva
+                    </p>
                   </div>
                 </div>
               )}

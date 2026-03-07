@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Plane, Check } from 'lucide-react';
+import { Plane, Check, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TripContextPanel from '../../components/TripContextPanel';
 import ZoeMiniChat from '../../components/ZoeMiniChat';
 import { useAppContext } from '../../App';
 import { Flight } from '../../types';
 import { PaywallGate } from '../../components/PaywallGate';
+import TripEditDrawer from '../../components/TripEditDrawer';
 
 /**
  * ===================================================
@@ -35,6 +36,7 @@ export default function PassagensPage() {
   const { tripContextProps, setSelectedFlight } = useAppContext();
   const [selectedCabin, setSelectedCabin] = useState('economy');
   const [localSelectedId, setLocalSelectedId] = useState<string | null>(null);
+  const [showTripDrawer, setShowTripDrawer] = useState(false);
 
   const handleSelect = (flight: Flight) => {
     setLocalSelectedId(flight.id);
@@ -48,14 +50,20 @@ export default function PassagensPage() {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="pt-20 pb-16 min-h-screen"
       >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-12 gap-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Área principal — lista de voos */}
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              <div className="pt-4">
+            <div className="lg:col-span-8 space-y-6">
+              <div className="pt-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-white tracking-tight">
                   Selecione seu voo para <span className="text-emerald-400">{tripContextProps.destination.name}</span>
                 </h2>
+                <button
+                  onClick={() => setShowTripDrawer(true)}
+                  className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white/50 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white/70 transition-all shrink-0"
+                >
+                  <Settings className="w-3 h-3" /> MODIFICAR
+                </button>
               </div>
 
               {/* Voo recomendado pela Zoe */}
@@ -65,8 +73,8 @@ export default function PassagensPage() {
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 ml-2">RECOMENDADO PELA ZOE</span>
                 </div>
 
-                <div className="px-6 pb-6">
-                  <div className="flex items-center gap-6">
+                <div className="px-4 md:px-6 pb-6">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
                     <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
                       <Plane className="w-5 h-5 text-emerald-400/60" />
                     </div>
@@ -80,28 +88,30 @@ export default function PassagensPage() {
                         {MOCK_FLIGHTS[0].airline} • {MOCK_FLIGHTS[0].number}
                       </p>
                     </div>
-                    <div className="text-center px-6">
+                    <div className="text-center px-2 md:px-6 hidden md:block">
                       <div className="text-[10px] text-white/30 font-bold">{MOCK_FLIGHTS[0].duration}</div>
                       <div className="w-20 h-px bg-white/10 my-1.5 relative">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white/20" />
                       </div>
                       <div className="text-[9px] text-white/30 font-bold uppercase">{MOCK_FLIGHTS[0].stops}</div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-white tracking-tighter">€ {MOCK_FLIGHTS[0].price.toLocaleString()}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">IDA E VOLTA</p>
+                    <div className="flex items-center justify-between w-full md:w-auto md:flex-col md:items-end gap-2">
+                      <div className="md:text-right">
+                        <p className="text-xl md:text-2xl font-bold text-white tracking-tighter">€ {MOCK_FLIGHTS[0].price.toLocaleString()}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">IDA E VOLTA</p>
+                      </div>
+                      <button
+                        onClick={() => handleSelect(MOCK_FLIGHTS[0])}
+                        className="px-4 md:px-6 py-3 rounded-xl border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-[#0a1628] transition-all shrink-0"
+                      >
+                        SELECIONAR
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleSelect(MOCK_FLIGHTS[0])}
-                      className="px-6 py-3 rounded-xl border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-[#0a1628] transition-all shrink-0"
-                    >
-                      SELECIONAR
-                    </button>
                   </div>
                 </div>
 
                 {/* Seletor de cabine */}
-                <div className="px-6 pb-6 border-t border-white/5 pt-4">
+                <div className="px-4 md:px-6 pb-6 border-t border-white/5 pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">PASSO 2 DE 2</p>
@@ -109,7 +119,7 @@ export default function PassagensPage() {
                     </div>
                     <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">Valores adicionais por passageiro</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {CABIN_CLASSES.map((cabin) => (
                       <button
                         key={cabin.id}
@@ -136,8 +146,8 @@ export default function PassagensPage() {
 
               {/* Outros voos */}
               {MOCK_FLIGHTS.slice(1).map((flight) => (
-                <div key={flight.id} className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm px-6 py-5">
-                  <div className="flex items-center gap-6">
+                <div key={flight.id} className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm px-4 md:px-6 py-5">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
                     <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
                       <Plane className="w-5 h-5 text-white/30" />
                     </div>
@@ -151,30 +161,32 @@ export default function PassagensPage() {
                         {flight.airline} • {flight.number}
                       </p>
                     </div>
-                    <div className="text-center px-6">
+                    <div className="text-center px-2 md:px-6 hidden md:block">
                       <div className="text-[10px] text-white/30 font-bold">{flight.duration}</div>
                       <div className="w-20 h-px bg-white/10 my-1.5 relative">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white/20" />
                       </div>
                       <div className="text-[9px] text-white/30 font-bold uppercase">{flight.stops}</div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-white tracking-tighter">€ {flight.price.toLocaleString()}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">IDA E VOLTA</p>
+                    <div className="flex items-center justify-between w-full md:w-auto md:flex-col md:items-end gap-2">
+                      <div className="md:text-right">
+                        <p className="text-xl md:text-2xl font-bold text-white tracking-tighter">€ {flight.price.toLocaleString()}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">IDA E VOLTA</p>
+                      </div>
+                      <button
+                        onClick={() => handleSelect(flight)}
+                        className="px-4 md:px-6 py-3 rounded-xl border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all shrink-0"
+                      >
+                        SELECIONAR
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleSelect(flight)}
-                      className="px-6 py-3 rounded-xl border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all shrink-0"
-                    >
-                      SELECIONAR
-                    </button>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Sidebar direita — painel de viagem */}
-            <div className="col-span-12 lg:col-span-4">
+            <div className="lg:col-span-4">
               <div className="sticky top-20">
                 <TripContextPanel
                   {...tripContextProps}
@@ -187,7 +199,8 @@ export default function PassagensPage() {
           </div>
         </div>
         <ZoeMiniChat context="passagens" destination={tripContextProps.destination.name} />
+        <TripEditDrawer open={showTripDrawer} onClose={() => setShowTripDrawer(false)} />
       </motion.div>
-    </PaywallGate>
+    </PaywallGate >
   );
 }

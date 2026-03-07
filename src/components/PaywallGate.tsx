@@ -29,7 +29,8 @@ const BENEFITS = [
 
 // ── PaywallModal — usado inline no Chat ────────────────────────
 export function PaywallModal({ onClose }: { onClose: () => void }) {
-    const { setUserPlan } = useAppContext();
+    const { setUserPlan, tripContextProps } = useAppContext();
+    const destName = tripContextProps.destination.name;
 
     const activate = (plan: UserPlan) => {
         setUserPlan(plan);
@@ -82,7 +83,7 @@ export function PaywallModal({ onClose }: { onClose: () => void }) {
                     {/* Zoe message card */}
                     <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] mb-6">
                         <p className="text-white/70 text-sm leading-relaxed font-light">
-                            Criei um planejamento inicial baseado no seu perfil — voos em classe executiva, hotéis boutique e experiências exclusivas em Paris. Para visualizar e confirmar, ative o plano <span className="text-emerald-400 font-medium">Voyax Black</span>.
+                            Criei um planejamento inicial baseado no seu perfil — voos em classe executiva, hotéis boutique e experiências exclusivas em {destName}. Para visualizar e confirmar, ative o plano <span className="text-emerald-400 font-medium">Voyax Black</span>.
                         </p>
                     </div>
 

@@ -274,8 +274,8 @@ function ZoeChat() {
               </div>
             )}
             <div className={`max-w-[82%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${msg.role === 'zoe'
-                ? 'bg-white/[0.05] border border-white/[0.07] text-white/75 rounded-tl-sm'
-                : 'bg-emerald-500/20 border border-emerald-500/25 text-emerald-300 rounded-tr-sm'
+              ? 'bg-white/[0.05] border border-white/[0.07] text-white/75 rounded-tl-sm'
+              : 'bg-emerald-500/20 border border-emerald-500/25 text-emerald-300 rounded-tr-sm'
               }`}>
               {msg.text}
             </div>
@@ -340,20 +340,20 @@ export default function FinanceiroPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="pt-24 pb-20 px-6 max-w-7xl mx-auto w-full min-h-screen"
+      className="pt-24 pb-20 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-screen"
     >
       {/* Header */}
       <div className="mb-10">
-        <h2 className="text-4xl font-bold tracking-tight font-display text-crisp">Orçamento da Viagem</h2>
+        <h2 className="text-2xl md:text-4xl font-bold tracking-tight font-display text-crisp">Orçamento da Viagem</h2>
         <p className="text-white/50 text-sm font-light tracking-wide mt-1">
           Paris, França · 12 – 24 Mai 2024 · Clique em qualquer valor para editar
         </p>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* ── LEFT COLUMN ── */}
-        <div className="col-span-12 lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-6">
 
           {/* 1️⃣ ZOE CHAT — first block */}
           <ZoeChat />
@@ -493,7 +493,7 @@ export default function FinanceiroPage() {
         </div>
 
         {/* ── RIGHT COLUMN ── */}
-        <div className="col-span-12 lg:col-span-5 space-y-5">
+        <div className="lg:col-span-5 space-y-5">
 
           {/* Budget bar */}
           <div className="glass-card rounded-3xl p-6 relative overflow-hidden">

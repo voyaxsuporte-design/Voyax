@@ -44,9 +44,9 @@ const CONTEXT_CONFIG: Record<
         ],
         replies: {
             'Qual voo tem menor escala?':
-                'O voo AF457 (Air France) é direto e chega às 23h10, sem nenhuma escala. É a melhor opção em tempo de viagem.',
+                'O voo recomendado pela Zoe é direto e sem escalas — a melhor opção em tempo de viagem.',
             'Melhor horário de chegada':
-                'Para aproveitar Paris no mesmo dia, o AF457 com partida às 08h45 é o ideal — você chega antes da meia-noite.',
+                'Para aproveitar seu destino no mesmo dia, o voo direto da manhã é o ideal — você chega com tempo de sobra.',
             'Compara preços por classe':
                 'Economy a partir de €1.120. Premium Economy adiciona €250. A Primeira Classe agrega €1.200 com benefícios como lounge exclusivo e assento-cama.',
         },
@@ -61,9 +61,9 @@ const CONTEXT_CONFIG: Record<
         ],
         replies: {
             'Melhor bairro para minha viagem?':
-                'Para viagens de luxo, Avenue Montaigne (8° arrondissement) é perfeito — próximo às boutiques e com vista para a Torre Eiffel.',
+                'Para viagens de luxo, recomendo bairros centrais com alta concentração de hotéis premium e fácil acesso a atrações.',
             'Qual hotel tem melhor custo-benefício?':
-                'O Saint James Paris (16°) oferece jardins privados e atmosfera château por ~R$5.900/noite — excelente relação para o perfil Voyax Black.',
+                'O hotel recomendado pela Zoe combina localização privilegiada, serviço impecável e excelente relação para o perfil Voyax Black.',
             'Ajustar orçamento de hospedagem':
                 'Posso filtrar hotéis dentro de uma nova faixa de investimento. Qual é o limite que prefere por noite?',
         },
@@ -78,11 +78,11 @@ const CONTEXT_CONFIG: Record<
         ],
         replies: {
             'Monta um roteiro para 5 dias':
-                'Dia 1: Tour privado no Louvre. Dia 2: Cruzeiro no Sena ao pôr do sol. Dia 3: Versalhes VIP. Dia 4: Jantar Gourmet na Torre Eiffel. Dia 5: livre para explorar o Marais.',
+                'Montei um roteiro de 5 dias com as melhores experiências para seu destino, incluindo tours privados, atividades gastronômicas e momentos culturais exclusivos.',
             'Quais são as mais exclusivas?':
-                'O Jantar Gourmet na Torre Eiffel e o Tour Privado no Louvre têm acesso restrito e guia particular — são as mais selecionadas do catálogo Voyax.',
+                'As experiências com acesso restrito e guia particular são as mais selecionadas do catálogo Voyax — ideais para o perfil Black.',
             'Atividades gastronômicas':
-                'O Jantar Gourmet na Torre Eiffel e o Cruzeiro no Sena incluem gastronomia premium. Também posso adicionar um atelier de culinária francesa ao seu roteiro.',
+                'As experiências selecionadas incluem gastronomia premium. Também posso adicionar ateliers de culinária local ao seu roteiro.',
         },
     },
     checkout: {
@@ -164,7 +164,7 @@ export default function ZoeMiniChat({ context, destination = 'seu destino' }: Zo
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.85, y: 8 }}
                         onClick={() => setIsOpen(true)}
-                        className="fixed bottom-8 right-8 z-[200] flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-full bg-[#0d1b2a]/90 border border-emerald-500/25 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(16,185,129,0.1)] hover:border-emerald-400/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_20px_rgba(16,185,129,0.2)] transition-all duration-300 group"
+                        className="fixed bottom-14 md:bottom-8 right-4 md:right-8 z-[200] flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-full bg-[#0d1b2a]/90 border border-emerald-500/25 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(16,185,129,0.1)] hover:border-emerald-400/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_20px_rgba(16,185,129,0.2)] transition-all duration-300 group"
                     >
                         <div className="w-7 h-7 rounded-full overflow-hidden border border-white/10 shrink-0">
                             <img src={IMAGES.zoeAvatar} alt="Zoe" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -185,7 +185,7 @@ export default function ZoeMiniChat({ context, destination = 'seu destino' }: Zo
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 24, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-                        className="fixed bottom-8 right-8 z-[200] w-[360px] max-h-[520px] flex flex-col rounded-3xl bg-[#0d1b2a]/95 border border-white/[0.08] backdrop-blur-2xl shadow-[0_32px_80px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)]"
+                        className="fixed bottom-14 md:bottom-8 right-2 md:right-8 left-2 md:left-auto z-[200] md:w-[360px] max-h-[520px] flex flex-col rounded-3xl bg-[#0d1b2a]/95 border border-white/[0.08] backdrop-blur-2xl shadow-[0_32px_80px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)]"
                     >
                         {/* Header */}
                         <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06] shrink-0">
@@ -222,8 +222,8 @@ export default function ZoeMiniChat({ context, destination = 'seu destino' }: Zo
                                     )}
                                     <div
                                         className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed font-light ${msg.sender === 'user'
-                                                ? 'bg-white/[0.08] border border-white/[0.10] text-white/90'
-                                                : 'bg-white/[0.04] border border-white/[0.06] text-white/85'
+                                            ? 'bg-white/[0.08] border border-white/[0.10] text-white/90'
+                                            : 'bg-white/[0.04] border border-white/[0.06] text-white/85'
                                             }`}
                                     >
                                         {msg.text}

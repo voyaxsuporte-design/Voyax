@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Star, ChevronRight, ArrowLeft, Clock, Users } from 'lucide-react';
+import { Star, ChevronRight, ArrowLeft, Clock, Users, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Experience } from '../../types';
 import { IMAGES } from '../../constants';
@@ -8,6 +8,7 @@ import ZoeMiniChat from '../../components/ZoeMiniChat';
 import { useAppContext } from '../../App';
 import { useState } from 'react';
 import { PaywallGate } from '../../components/PaywallGate';
+import TripEditDrawer from '../../components/TripEditDrawer';
 
 /**
  * ===================================================
@@ -61,6 +62,7 @@ export default function ExperienciasPage() {
   const navigate = useNavigate();
   const { tripContextProps, setSelectedExperience: setGlobalExperience } = useAppContext();
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(EXPERIENCES[0]);
+  const [showTripDrawer, setShowTripDrawer] = useState(false);
 
   return (
     <PaywallGate pageName="Experiências" icon={Star}>
@@ -70,11 +72,11 @@ export default function ExperienciasPage() {
         exit={{ opacity: 0, x: -20 }}
         className="pt-20 pb-16 min-h-screen"
       >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-12 gap-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
             {/* Left column — scrolls with page */}
-            <div className="col-span-12 lg:col-span-8 space-y-6 lg:border-r border-white/5 lg:pr-6">
+            <div className="lg:col-span-8 space-y-6 lg:border-r border-white/5 lg:pr-6">
               <div className="flex items-center gap-4 pt-4">
                 <button
                   onClick={() => navigate('/hospedagem')}
@@ -86,6 +88,12 @@ export default function ExperienciasPage() {
                   <h2 className="text-3xl font-bold tracking-tight font-display text-crisp">Experiências Curadas</h2>
                   <p className="text-white/50 text-sm font-light tracking-wide">Momentos inesquecíveis desenhados para o seu perfil</p>
                 </div>
+                <button
+                  onClick={() => setShowTripDrawer(true)}
+                  className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white/50 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white/70 transition-all shrink-0 ml-auto"
+                >
+                  <Settings className="w-3 h-3" /> MODIFICAR
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -160,7 +168,7 @@ export default function ExperienciasPage() {
             </div>
 
             {/* Right column — sticky TripContextPanel */}
-            <div className="col-span-12 lg:col-span-4">
+            <div className="lg:col-span-4">
               <div className="sticky top-20">
                 <TripContextPanel
                   {...tripContextProps}
@@ -179,6 +187,7 @@ export default function ExperienciasPage() {
           </div>
         </div>
         <ZoeMiniChat context="experiencias" destination={tripContextProps.destination.name} />
+        <TripEditDrawer open={showTripDrawer} onClose={() => setShowTripDrawer(false)} />
       </motion.div>
     </PaywallGate>
   );

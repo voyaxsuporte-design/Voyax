@@ -8,7 +8,7 @@
 
 @layer base {
   body {
-    @apply bg-[#0f172a] text-white antialiased;
+    @apply bg-[#0f172a] text-white antialiased overflow-x-hidden;
   }
 }
 

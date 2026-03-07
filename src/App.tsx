@@ -45,6 +45,8 @@ interface AppContextType {
   /** Plano do usuário: free | trial | premium */
   userPlan: UserPlan;
   setUserPlan: (p: UserPlan) => void;
+  travelers: number;
+  setTravelers: (n: number) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -84,6 +86,7 @@ export default function App() {
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const [userPlan, setUserPlan] = useState<UserPlan>('free');
+  const [travelers, setTravelers] = useState(2);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showBudgetPlanner, setShowBudgetPlanner] = useState(false);
   const [budgetData, setBudgetData] = useState<BudgetData | null>(null);
@@ -91,6 +94,16 @@ export default function App() {
   const [tripDates, setTripDates] = useState({ departure: '12 MAI 2024', return: '24 MAI 2024' });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [activeProfileModal, setActiveProfileModal] = useState<string | null>(null);
+
+  // When destination changes, reset all selections that depend on it
+  const handleChangeDestination = (dest: Destination) => {
+    if (dest.name !== destination.name) {
+      setSelectedFlight(null);
+      setSelectedHotel(null);
+      setSelectedExperience(null);
+    }
+    setDestination(dest);
+  };
 
   const handleBudgetConfirm = (data: BudgetData) => { setBudgetData(data); setShowBudgetPlanner(false); };
   const handleDatesConfirm = (start: string, end: string) => { setTripDates({ departure: start, return: end }); setShowCalendar(false); };
@@ -103,7 +116,7 @@ export default function App() {
     onOpenBudget: () => setShowBudgetPlanner(true),
     budgetData,
     destination,
-    onChangeDestination: setDestination,
+    onChangeDestination: handleChangeDestination,
     tripDates,
     currentStep: currentStepIndex || 1,
     selectedFlightPrice: selectedFlight?.price || 0,
@@ -118,6 +131,7 @@ export default function App() {
       selectedHotel, setSelectedHotel,
       selectedExperience, setSelectedExperience,
       searchQuery, setSearchQuery,
+      travelers, setTravelers,
       userPlan, setUserPlan,
     }}>
       <div className="min-h-screen text-white font-sans selection:bg-emerald-500/30 selection:text-emerald-200 chat-scroll relative">

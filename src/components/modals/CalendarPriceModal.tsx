@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Calendar as CalendarIcon, Info, Loader2 } from 'lucide-react';
+import { useAppContext } from '../../App';
 
 interface CalendarPriceModalProps {
     onClose: () => void;
@@ -8,6 +9,7 @@ interface CalendarPriceModalProps {
 }
 
 export default function CalendarPriceModal({ onClose, onConfirm }: CalendarPriceModalProps) {
+    const { tripContextProps } = useAppContext();
     const [days, setDays] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStart, setSelectedStart] = useState<number | null>(12);
@@ -135,7 +137,7 @@ export default function CalendarPriceModal({ onClose, onConfirm }: CalendarPrice
                         <div className="mt-10 flex justify-between items-center pt-6 border-t border-white/10 shrink-0">
                             <div className="flex items-center gap-2 text-emerald-400 text-xs bg-emerald-500/10 px-4 py-2 rounded-lg">
                                 <Info className="w-4 h-4" />
-                                <span>Seleção inteligente de tarifas para <strong>Paris</strong>.</span>
+                                <span>Seleção inteligente de tarifas para <strong>{tripContextProps.destination.name}</strong>.</span>
                             </div>
                             <button
                                 onClick={() => {

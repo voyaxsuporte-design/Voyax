@@ -42,7 +42,7 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 
 export default function HomePage() {
     const navigate = useNavigate();
-    const { searchQuery, setSearchQuery } = useAppContext();
+    const { searchQuery, setSearchQuery, tripContextProps } = useAppContext();
 
     return (
         <div className="relative">
@@ -159,7 +159,7 @@ export default function HomePage() {
                     <div className="flex flex-wrap justify-center gap-2 mt-4">
                         {[
                             { label: 'Ver meu orçamento', icon: Wallet },
-                            { label: 'Próxima viagem: Paris', icon: Plane },
+                            { label: `Próxima viagem: ${tripContextProps.destination.name}`, icon: Plane },
                             { label: 'Histórico recente', icon: History },
                         ].map((item) => (
                             <button
@@ -443,7 +443,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Métricas de confiança */}
-                    <div className="mt-14 pt-10 border-t border-white/[0.06] grid grid-cols-3 gap-6">
+                    <div className="mt-14 pt-10 border-t border-white/[0.06] grid grid-cols-1 sm:grid-cols-3 gap-6">
                         {[
                             { value: '2.4M+', label: 'Milhas gerenciadas' },
                             { value: '150+', label: 'Destinos curados' },

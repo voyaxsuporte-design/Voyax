@@ -651,16 +651,16 @@ export function ProfileModals({ type, onClose }: { type: string; onClose: () => 
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className={`relative w-full bg-[#0a0f1d] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl flex flex-col ${cfg.wide ? 'max-w-3xl' : 'max-w-xl'}`}
+                className={`relative w-full bg-[#0a0f1d] border border-white/10 rounded-2xl sm:rounded-[32px] overflow-hidden shadow-2xl flex flex-col ${cfg.wide ? 'max-w-3xl' : 'max-w-xl'}`}
                 style={{ maxHeight: '90vh' }}
             >
                 {/* Modal header */}
-                <div className="flex justify-between items-center px-8 pt-8 pb-5 border-b border-white/[0.06] shrink-0">
+                <div className="flex justify-between items-center px-4 sm:px-8 pt-5 sm:pt-8 pb-4 sm:pb-5 border-b border-white/[0.06] shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
                             <cfg.icon className="w-5 h-5 text-emerald-400" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white tracking-tight">{cfg.title}</h3>
+                        <h3 className="text-lg sm:text-2xl font-bold text-white tracking-tight">{cfg.title}</h3>
                     </div>
                     <button onClick={onClose} className="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all">
                         <X className="w-4 h-4 text-white/40" />
@@ -668,7 +668,7 @@ export function ProfileModals({ type, onClose }: { type: string; onClose: () => 
                 </div>
 
                 {/* Modal body */}
-                <div className="flex-1 overflow-y-auto px-8 py-6">
+                <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6">
                     {isProfileHub && <ProfileHub onClose={onClose} />}
                     {isBilling && <BillingHub />}
                     {isAbout && <AboutVoyax />}
@@ -684,7 +684,7 @@ export function ProfileModals({ type, onClose }: { type: string; onClose: () => 
                             </div>
                             <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                                 <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">E-mail de Suporte</p>
-                                <a href="mailto:Voyaxsuporte@gmail.com" className="text-2xl font-bold text-emerald-400 hover:text-emerald-300 transition-colors">
+                                <a href="mailto:Voyaxsuporte@gmail.com" className="text-sm sm:text-xl font-bold text-emerald-400 hover:text-emerald-300 transition-colors break-all">
                                     Voyaxsuporte@gmail.com
                                 </a>
                             </div>
@@ -722,7 +722,7 @@ export function ProfileModals({ type, onClose }: { type: string; onClose: () => 
                 </div>
 
                 {/* Modal footer */}
-                <div className="px-8 py-5 border-t border-white/[0.06] shrink-0 flex justify-end gap-3">
+                <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06] shrink-0 flex justify-end gap-3">
                     <button onClick={onClose} className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-colors">
                         Fechar
                     </button>
