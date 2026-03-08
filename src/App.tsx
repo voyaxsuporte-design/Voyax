@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, Dispatch, SetStateAction } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { IMAGES, DESTINATIONS, Destination } from './constants';
@@ -9,6 +9,7 @@ import CalendarPriceModal from './components/modals/CalendarPriceModal';
 import BudgetPlannerModal, { BudgetData } from './components/modals/BudgetPlannerModal';
 import { ProfileModals } from './components/ProfileMenu';
 import { Flight, Hotel, Experience } from './types';
+import type { ZoeMessage } from './hooks/useZoeChat';
 
 /**
  * ===================================================
@@ -47,6 +48,11 @@ interface AppContextType {
   setUserPlan: (p: UserPlan) => void;
   travelers: number;
   setTravelers: (n: number) => void;
+  /** Shared Zoe conversation history across all pages */
+  zoeChatMessages: ZoeMessage[];
+  setZoeChatMessages: Dispatch<SetStateAction<ZoeMessage[]>>;
+  zoeReplyCount: number;
+  setZoeReplyCount: Dispatch<SetStateAction<number>>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -95,6 +101,17 @@ export default function App() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [activeProfileModal, setActiveProfileModal] = useState<string | null>(null);
 
+  // ── Shared Zoe conversation state ──
+  const [zoeChatMessages, setZoeChatMessages] = useState<ZoeMessage[]>([
+    {
+      id: '1',
+      text: 'Olá! Sou a Zoe, sua concierge premium. Estou aqui para ajudar com tudo sobre sua viagem. Para onde gostaria de ir?',
+      sender: 'zoe',
+      timestamp: new Date(),
+    },
+  ]);
+  const [zoeReplyCount, setZoeReplyCount] = useState(0);
+
   // When destination changes, reset all selections that depend on it
   const handleChangeDestination = (dest: Destination) => {
     if (dest.name !== destination.name) {
@@ -133,6 +150,8 @@ export default function App() {
       searchQuery, setSearchQuery,
       travelers, setTravelers,
       userPlan, setUserPlan,
+      zoeChatMessages, setZoeChatMessages,
+      zoeReplyCount, setZoeReplyCount,
     }}>
       <div className="min-h-screen text-white font-sans selection:bg-emerald-500/30 selection:text-emerald-200 chat-scroll relative">
         {/* Fundo de mar premium (aparece em TODAS as telas) */}

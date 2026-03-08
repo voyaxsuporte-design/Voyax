@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, Sparkles } from 'lucide-react';
 import { IMAGES } from '../constants';
+import { useZoeChat, type PageContext } from '../hooks/useZoeChat';
 
 /**
  * ===================================================
@@ -9,6 +10,9 @@ import { IMAGES } from '../constants';
  *
  *  Usado nos módulos: Passagens, Hotéis,
  *  Experiências, Checkout.
+ *
+ *  Agora usa o hook compartilhado useZoeChat para
+ *  manter a conversa contínua entre todas as páginas.
  *
  *  Props:
  *    context     — 'passagens' | 'hoteis' | 'experiencias' | 'checkout'
@@ -23,107 +27,46 @@ interface ZoeMiniChatProps {
     destination?: string;
 }
 
-interface Message {
-    id: string;
-    text: string;
-    sender: 'zoe' | 'user';
-}
+// Map the UI context names to PageContext values used by the hook
+const CONTEXT_TO_PAGE: Record<Context, PageContext> = {
+    passagens: 'flights',
+    hoteis: 'hotels',
+    experiencias: 'experiences',
+    checkout: 'checkout',
+};
 
-// ── Conteúdo contextual por módulo ──────────────────
-const CONTEXT_CONFIG: Record<
-    Context,
-    { greeting: string; suggestions: string[]; replies: Record<string, string> }
-> = {
-    passagens: {
-        greeting:
-            'Posso te ajudar com a escolha do voo. Quer que eu analise os horários, escalas ou compare preços?',
-        suggestions: [
-            'Qual voo tem menor escala?',
-            'Melhor horário de chegada',
-            'Compara preços por classe',
-        ],
-        replies: {
-            'Qual voo tem menor escala?':
-                'O voo recomendado pela Zoe é direto e sem escalas — a melhor opção em tempo de viagem.',
-            'Melhor horário de chegada':
-                'Para aproveitar seu destino no mesmo dia, o voo direto da manhã é o ideal — você chega com tempo de sobra.',
-            'Compara preços por classe':
-                'Economy a partir de €1.120. Premium Economy adiciona €250. A Primeira Classe agrega €1.200 com benefícios como lounge exclusivo e assento-cama.',
-        },
-    },
-    hoteis: {
-        greeting:
-            'Posso sugerir os melhores bairros, comparar hotéis pelo seu perfil ou ajustar o orçamento. Por onde começamos?',
-        suggestions: [
-            'Melhor bairro para minha viagem?',
-            'Qual hotel tem melhor custo-benefício?',
-            'Ajustar orçamento de hospedagem',
-        ],
-        replies: {
-            'Melhor bairro para minha viagem?':
-                'Para viagens de luxo, recomendo bairros centrais com alta concentração de hotéis premium e fácil acesso a atrações.',
-            'Qual hotel tem melhor custo-benefício?':
-                'O hotel recomendado pela Zoe combina localização privilegiada, serviço impecável e excelente relação para o perfil Voyax Black.',
-            'Ajustar orçamento de hospedagem':
-                'Posso filtrar hotéis dentro de uma nova faixa de investimento. Qual é o limite que prefere por noite?',
-        },
-    },
-    experiencias: {
-        greeting:
-            'Posso organizar seu roteiro de experiências, recomendar atividades exclusivas ou verificar disponibilidade. O que prefere?',
-        suggestions: [
-            'Monta um roteiro para 5 dias',
-            'Quais são as mais exclusivas?',
-            'Atividades gastronômicas',
-        ],
-        replies: {
-            'Monta um roteiro para 5 dias':
-                'Montei um roteiro de 5 dias com as melhores experiências para seu destino, incluindo tours privados, atividades gastronômicas e momentos culturais exclusivos.',
-            'Quais são as mais exclusivas?':
-                'As experiências com acesso restrito e guia particular são as mais selecionadas do catálogo Voyax — ideais para o perfil Black.',
-            'Atividades gastronômicas':
-                'As experiências selecionadas incluem gastronomia premium. Também posso adicionar ateliers de culinária local ao seu roteiro.',
-        },
-    },
-    checkout: {
-        greeting:
-            'Estou revisando sua reserva. Posso explicar algum custo, validar suas escolhas ou tirar dúvidas antes de confirmar.',
-        suggestions: [
-            'O que está incluído no total?',
-            'Posso cancelar depois?',
-            'Minhas escolhas são as melhores?',
-        ],
-        replies: {
-            'O que está incluído no total?':
-                'O total inclui passagem aérea (ida e volta), a primeira noite do hotel e a experiência selecionada. Taxas de concierge Voyax Black estão incluídas sem custo adicional.',
-            'Posso cancelar depois?':
-                'Sim. Você tem direito ao cancelamento gratuito até 48h antes da partida, coberto pelo Seguro Voyax Global.',
-            'Minhas escolhas são as melhores?':
-                'Baseado no seu perfil Black, as escolhas estão excelentes. O Air France direto + Plaza Athénée + Tour Privado no Louvre é uma combinação premium de altíssimo nível.',
-        },
-    },
+// ── Suggestions per module (quick buttons) ──────────
+const CONTEXT_SUGGESTIONS: Record<Context, string[]> = {
+    passagens: [
+        'Qual voo tem menor escala?',
+        'Melhor horário de chegada',
+        'Compara preços por classe',
+    ],
+    hoteis: [
+        'Melhor bairro para minha viagem?',
+        'Qual hotel tem melhor custo-benefício?',
+        'Ajustar orçamento de hospedagem',
+    ],
+    experiencias: [
+        'Monta um roteiro para 5 dias',
+        'Quais são as mais exclusivas?',
+        'Atividades gastronômicas',
+    ],
+    checkout: [
+        'O que está incluído no total?',
+        'Posso cancelar depois?',
+        'Minhas escolhas são as melhores?',
+    ],
 };
 
 export default function ZoeMiniChat({ context, destination = 'seu destino' }: ZoeMiniChatProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
-    const bottomRef = useRef<HTMLDivElement>(null);
-    const config = CONTEXT_CONFIG[context];
+    const pageContext = CONTEXT_TO_PAGE[context];
+    const { messages, isTyping, sendMessage } = useZoeChat(pageContext);
 
-    // Saudação inicial ao abrir
-    useEffect(() => {
-        if (isOpen && messages.length === 0) {
-            setMessages([
-                {
-                    id: '0',
-                    text: config.greeting,
-                    sender: 'zoe',
-                },
-            ]);
-        }
-    }, [isOpen]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [input, setInput] = useState('');
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const suggestions = CONTEXT_SUGGESTIONS[context];
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -131,26 +74,12 @@ export default function ZoeMiniChat({ context, destination = 'seu destino' }: Zo
 
     const handleSend = (text: string) => {
         if (!text.trim()) return;
-        const userMsg: Message = { id: Date.now().toString(), text, sender: 'user' };
-        setMessages((prev) => [...prev, userMsg]);
+        sendMessage(text);
         setInput('');
-        setIsTyping(true);
-
-        setTimeout(() => {
-            setIsTyping(false);
-            const reply =
-                config.replies[text] ||
-                `Entendido! Estou analisando as melhores opções para ${destination}. Em breve terei uma recomendação personalizada para você.`;
-            setMessages((prev) => [
-                ...prev,
-                { id: (Date.now() + 1).toString(), text: reply, sender: 'zoe' },
-            ]);
-        }, 1200);
     };
 
     const handleClose = () => {
         setIsOpen(false);
-        setMessages([]);
         setInput('');
     };
 
@@ -260,10 +189,10 @@ export default function ZoeMiniChat({ context, destination = 'seu destino' }: Zo
                             <div ref={bottomRef} />
                         </div>
 
-                        {/* Quick suggestions */}
+                        {/* Quick suggestions — shown only when just the greeting is present */}
                         {messages.length <= 1 && !isTyping && (
                             <div className="px-4 pb-2 flex flex-wrap gap-1.5 shrink-0">
-                                {config.suggestions.map((s) => (
+                                {suggestions.map((s) => (
                                     <button
                                         key={s}
                                         onClick={() => handleSend(s)}

@@ -2,11 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Send, Mic, ChevronRight, Sparkles, MapPin, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { IMAGES, DESTINATIONS, Destination } from '../../constants';
+import { IMAGES } from '../../constants';
 import TripContextPanel from '../../components/TripContextPanel';
 import { useAppContext } from '../../App';
 import { PaywallModal } from '../../components/PaywallGate';
 import TripEditDrawer from '../../components/TripEditDrawer';
+import { useZoeChat } from '../../hooks/useZoeChat';
 
 /**
  * ===================================================
@@ -14,81 +15,13 @@ import TripEditDrawer from '../../components/TripEditDrawer';
  *  URL: /chat
  *
  *  Tela de conversa com a Zoe (OpenAI).
- *  A IA extrai destinos automaticamente de qualquer
- *  mensagem e atualiza o estado global.
+ *  Usa o hook compartilhado useZoeChat para manter
+ *  um único histórico de conversa entre todas as páginas.
  *
  *  Paywall: disparado após a 3ª resposta da Zoe
  *  quando o usuário é FREE.
  * ===================================================
  */
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'zoe';
-  timestamp: Date;
-}
-
-/**
- * Create a Destination object from an AI-extracted destination.
- * Tries to match with a known DESTINATION first (for image/climate/exchange).
- * If no match, creates a dynamic generic Destination.
- */
-function createDestination(name: string, country: string): Destination {
-  // Try to find in the known DESTINATIONS list
-  const known = DESTINATIONS.find(
-    d => d.name.toLowerCase() === name.toLowerCase() ||
-      d.country.toLowerCase() === country.toLowerCase()
-  );
-  if (known) return known;
-
-  // Create a dynamic destination for any city/country
-  return {
-    name,
-    country,
-    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
-    climate: '—',
-    exchange: '—',
-  };
-}
-
-/**
- * Call the Zoe API with conversation history and trip context.
- * Returns { reply, extractedDestination? }
- */
-async function callZoeAPI(
-  userMessage: string,
-  conversationHistory: Message[],
-  tripContext: { destination: string; country: string },
-): Promise<{ reply: string; extractedDestination?: { name: string; country: string } }> {
-  const history = conversationHistory.slice(-6).map(m => ({
-    role: m.sender === 'user' ? 'user' : 'assistant',
-    content: m.text,
-  }));
-
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-  try {
-    const res = await fetch(`${API_URL}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: userMessage,
-        conversationHistory: history,
-        tripContext,
-      }),
-    });
-
-    const data = await res.json();
-    return {
-      reply: data.reply || 'Desculpe, não consegui processar sua solicitação.',
-      extractedDestination: data.extractedDestination || undefined,
-    };
-  } catch (err) {
-    console.error('Zoe API error:', err);
-    return { reply: 'Desculpe, estou com um pequeno problema técnico. Tente novamente em instantes.' };
-  }
-}
 
 // ── Chat Input Area ────────────────────────────────
 const ChatInputArea = ({ onSend, blocked }: { onSend: (text: string) => void; blocked: boolean }) => {
@@ -167,99 +100,20 @@ const ChatInputArea = ({ onSend, blocked }: { onSend: (text: string) => void; bl
 export default function ChatPage() {
   const navigate = useNavigate();
   const { tripContextProps, searchQuery, setSearchQuery, userPlan } = useAppContext();
-  const destination = tripContextProps.destination;
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: `Olá! Sou a Zoe, sua concierge premium. Estou aqui para ajudar com tudo sobre sua viagem. Para onde gostaria de ir?`,
-      sender: 'zoe',
-      timestamp: new Date(),
-    },
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
+  const {
+    messages,
+    isTyping,
+    isBlocked,
+    sendMessage,
+    zoeReplyCount,
+    PAYWALL_TRIGGER,
+  } = useZoeChat('chat');
+
   const [showPaywall, setShowPaywall] = useState(false);
   const [showTripDrawer, setShowTripDrawer] = useState(false);
-  const zoeReplyCountRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const injectedRef = useRef(false);
-  const isSendingRef = useRef(false);
-
-  // Paywall triggers on 3rd Zoe reply for free users
-  const PAYWALL_TRIGGER = 3;
-  const isBlocked = userPlan === 'free' && zoeReplyCountRef.current >= PAYWALL_TRIGGER;
-
-  /**
-   * Process AI response: update destination if AI extracted one,
-   * add Zoe's message to chat, handle paywall.
-   */
-  const processAIResponse = (
-    reply: string,
-    extractedDestination?: { name: string; country: string },
-  ) => {
-    // If AI extracted a destination, update the global trip state
-    if (extractedDestination) {
-      const newDest = createDestination(extractedDestination.name, extractedDestination.country);
-      if (newDest.name !== tripContextProps.destination.name) {
-        tripContextProps.onChangeDestination(newDest);
-      }
-    }
-
-    zoeReplyCountRef.current += 1;
-
-    const zoeMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      text: reply,
-      sender: 'zoe',
-      timestamp: new Date(),
-    };
-
-    // Prevent duplicate messages
-    setMessages(prev => {
-      const last = prev[prev.length - 1];
-      if (last && last.sender === 'zoe' && last.text === reply) {
-        return prev;
-      }
-      return [...prev, zoeMsg];
-    });
-
-    // Trigger paywall after the 3rd Zoe reply for free users
-    if (userPlan === 'free' && zoeReplyCountRef.current >= PAYWALL_TRIGGER) {
-      setTimeout(() => setShowPaywall(true), 700);
-    }
-  };
-
-  /**
-   * Send a user message to the Zoe API and process the response.
-   * Guarded by isSendingRef to prevent double calls.
-   */
-  const sendToZoe = async (userText: string, allMessages: Message[]) => {
-    if (isSendingRef.current) return;
-    isSendingRef.current = true;
-    setIsTyping(true);
-
-    try {
-      const { reply, extractedDestination } = await callZoeAPI(
-        userText,
-        allMessages,
-        {
-          destination: tripContextProps.destination.name,
-          country: tripContextProps.destination.country,
-        },
-      );
-      processAIResponse(reply, extractedDestination);
-    } catch {
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        text: 'Desculpe, estou com um problema técnico. Tente novamente.',
-        sender: 'zoe',
-        timestamp: new Date(),
-      }]);
-    } finally {
-      setIsTyping(false);
-      isSendingRef.current = false;
-    }
-  };
 
   // Inject message from Home page search on first render
   useEffect(() => {
@@ -268,19 +122,8 @@ export default function ChatPage() {
     const query = searchQuery;
     setSearchQuery('');
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      text: query,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-
     setTimeout(() => {
-      setMessages(prev => {
-        const updated = [...prev, userMsg];
-        sendToZoe(query, updated);
-        return updated;
-      });
+      sendMessage(query);
     }, 400);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -291,28 +134,22 @@ export default function ChatPage() {
     }
   }, [messages, isTyping]);
 
-  const handleSend = (text: string) => {
-    // Prevent double sends
-    if (isTyping || isSendingRef.current) return;
+  // Watch for paywall trigger
+  useEffect(() => {
+    if (userPlan === 'free' && zoeReplyCount >= PAYWALL_TRIGGER) {
+      setTimeout(() => setShowPaywall(true), 700);
+    }
+  }, [zoeReplyCount, userPlan, PAYWALL_TRIGGER]);
 
-    // If free user hit limit, show paywall
-    if (userPlan === 'free' && zoeReplyCountRef.current >= PAYWALL_TRIGGER) {
+  const handleSend = (text: string) => {
+    if (isTyping) return;
+
+    if (userPlan === 'free' && zoeReplyCount >= PAYWALL_TRIGGER) {
       setShowPaywall(true);
       return;
     }
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      text,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => {
-      const updated = [...prev, userMsg];
-      sendToZoe(text, updated);
-      return updated;
-    });
+    sendMessage(text);
   };
 
   const goToFlights = () => {

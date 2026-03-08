@@ -20,10 +20,22 @@ import OpenAI from 'openai';
  */
 const router = Router();
 
-function buildSystemPrompt(tripContext?: any): string {
+// Page-specific focus instructions for contextual responses
+const PAGE_FOCUS: Record<string, string> = {
+    flights: 'O usuário está na página de PASSAGENS AÉREAS. Foque suas respostas em voos, preços de passagens, escalas, classes de cabine, horários e companhias aéreas.',
+    hotels: 'O usuário está na página de HOSPEDAGEM. Foque suas respostas em hotéis, bairros, localização, conforto, amenidades e preços de diárias.',
+    experiences: 'O usuário está na página de EXPERIÊNCIAS. Foque suas respostas em tours, restaurantes, atrações turísticas, roteiros e atividades exclusivas.',
+    checkout: 'O usuário está na página de CHECKOUT. Foque suas respostas em resumo da reserva, custos incluídos, políticas de cancelamento e confirmação.',
+};
+
+function buildSystemPrompt(tripContext?: any, currentPageContext?: string): string {
     const currentDest = tripContext?.destination && tripContext.destination !== 'not defined yet'
         ? `${tripContext.destination}${tripContext.country ? `, ${tripContext.country}` : ''}`
         : 'ainda não definido';
+
+    const pageFocus = currentPageContext && PAGE_FOCUS[currentPageContext]
+        ? `\n\nCONTEXTO DA PÁGINA ATUAL:\n${PAGE_FOCUS[currentPageContext]}`
+        : '';
 
     return `Você é a Zoe, assistente virtual premium da Voyax — uma plataforma de concierge de viagens de alto padrão.
 
@@ -40,7 +52,7 @@ Regras de comportamento:
 - Se o usuário perguntar sobre finanças ou planejamento, responda sobre isso
 - Aceite QUALQUER destino do mundo — você não está limitada a uma lista fixa
 
-Destino atual do usuário: ${currentDest}
+Destino atual do usuário: ${currentDest}${pageFocus}
 
 INSTRUÇÃO ESPECIAL — Extração de destino:
 Se o usuário mencionar um destino de viagem (cidade ou país), INCLUA no FINAL da sua resposta uma linha JSON no seguinte formato EXATO:
@@ -176,7 +188,7 @@ function buildFallbackReply(msg: string, dest: { name: string; country: string }
 // POST /api/chat — envia mensagem para a Zoe (OpenAI ChatGPT)
 router.post('/', async (req, res) => {
     try {
-        const { message, conversationHistory, tripContext } = req.body;
+        const { message, conversationHistory, tripContext, currentPageContext } = req.body;
 
         if (!message) {
             return res.status(400).json({ error: 'Campo obrigatório: message' });
@@ -195,7 +207,7 @@ router.post('/', async (req, res) => {
         const openai = new OpenAI({ apiKey });
 
         // Build system prompt with dynamic trip context
-        const systemContent = buildSystemPrompt(tripContext);
+        const systemContent = buildSystemPrompt(tripContext, currentPageContext);
 
         // Build messages array with conversation history
         const openaiMessages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [

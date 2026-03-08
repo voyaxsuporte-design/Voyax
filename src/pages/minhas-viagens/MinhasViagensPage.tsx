@@ -104,7 +104,7 @@ const STATUS_COLOR: Record<Trip['status'], string> = {
 };
 
 // ── ZOE MODIFICATION INTERFACE ────────────────────────────────
-const ZOE_MESSAGES = [
+const ZOE_MESSAGES: ZoeMessage[] = [
   { id: 'm1', text: 'O que você deseja alterar na sua viagem?', sender: 'zoe' },
 ];
 
