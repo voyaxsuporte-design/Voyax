@@ -235,12 +235,12 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error: any) {
-        console.error('Erro no chat (OpenAI):', error.message);
+        console.error('Erro no chat (OpenAI):', error);
 
-        // Fallback with destination extraction on any error
-        const dest = extractDestinationFallback(req.body.message || '');
-        const reply = buildFallbackReply(req.body.message || '', dest);
-        res.json({ reply, extractedDestination: dest });
+        return res.status(500).json({
+            reply: `Erro real da OpenAI: ${error?.message || 'erro desconhecido'}`,
+            extractedDestination: null,
+        });
     }
 });
 
