@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import destinationsRouter from './routes/destinations';
 import flightsRouter from './routes/flights';
@@ -26,6 +27,17 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ── CORS — permite chamadas do frontend em produção e dev ──
+app.use(cors({
+    origin: [
+        'https://voyax-frontend.onrender.com',
+        'http://localhost:3000',
+        'http://localhost:5173',
+    ],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Middleware para aceitar JSON no body das requisições
 app.use(express.json());
