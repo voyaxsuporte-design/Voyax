@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voyax Widget</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Transparent background so it blends nicely with the parent React component */
+      body {
+        background: transparent;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: #fff;
+        overflow-x: hidden;
+      }
+
+      #tpwl-search,
+      #tpwl-tickets {
+        width: 100%;
+      }
+
+      /* A little padding inside the iframe so shadow drop down isn't clipped */
+      .widget-wrapper {
+        padding: 10px;
+      }
+    </style>
+
+    <!-- Travelpayouts White Label -->
+    <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
+      (function () {
+        var script = document.createElement("script");
+        script.async = true;
+        script.type = "module";
+        script.src = "https://tpemd.com/wl_web/main.js?wl_id=1503";
+        document.head.appendChild(script);
+      })();
+    </script>
+  </head>
+
+  <body>
+    <div class="widget-wrapper">
+      <div id="tpwl-search"></div>
+      <div id="tpwl-tickets"></div>
+    </div>
+  </body>
+</html>
